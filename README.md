@@ -6,6 +6,7 @@
 * Log data in daily CSV files
 * Minimal app that runs in the system tray
 * Totally separate analysis application
+* Key presses are not used to enhance security
 
 ## Additional Resources
 * [ActivityWatch](https://activitywatch.net/) - A similar project with extensive features, but has a database structure that is complex and keeps getting silenced by my antivirus system.
