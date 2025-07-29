@@ -4,12 +4,12 @@
         <OutputType>WinExe</OutputType>
         <TargetFramework>net9.0-windows</TargetFramework>
         <Nullable>enable</Nullable>
+        <UseWindowsForms>true</UseWindowsForms>
         <ImplicitUsings>enable</ImplicitUsings>
-        <UseWPF>true</UseWPF>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\ActiveWindowLogger\ActiveWindowLogger.csproj" />
+        <ProjectReference Include="..\ActiveWindowLogger\ActiveWindowLogger.csproj" />
     </ItemGroup>
 
 </Project>

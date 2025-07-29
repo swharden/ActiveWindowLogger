@@ -1,5 +1,5 @@
 ﻿using ActiveWindowLogger;
 
-StateMonitor monitor = new("./activity-logs");
+StateMonitor monitor = new();
 monitor.LineLogged += (s, e) => Console.Write(e);
-monitor.RunForever();
+monitor.StartBlocking();

@@ -9,30 +9,21 @@ public class StateMonitor
     public TimeSpan InactiveThreshold { get; set; } = TimeSpan.FromMinutes(5);
     public TimeSpan CheckInterval { get; set; } = TimeSpan.FromSeconds(5);
     public EventHandler<string>? LineLogged { get; set; }
+    readonly System.Timers.Timer Timer = new();
 
-    readonly string LogFolderPath;
+    public string LogFolderPath { get; set; } = Path.GetFullPath("./");
     string WindowLast = string.Empty;
     string MouseLast = string.Empty;
     bool IsActive = true;
     readonly Stopwatch LastActivityTimer = Stopwatch.StartNew();
 
-    public StateMonitor(string logFolderPath = "./")
-    {
-        logFolderPath = Path.GetFullPath(logFolderPath);
-        if (!Directory.Exists(logFolderPath))
-        {
-            string? parent = Path.GetDirectoryName(logFolderPath);
-            if (parent is null || !Directory.Exists(parent))
-            {
-                throw new DirectoryNotFoundException(parent);
-            }
-            Directory.CreateDirectory(logFolderPath);
-        }
-        LogFolderPath = logFolderPath;
-    }
-
     private string LogFilePath => Path.Join(LogFolderPath,
         $"{DateTime.Now.Year}-{DateTime.Now.Month:00}-{DateTime.Now.Day:00}.txt");
+
+    public StateMonitor()
+    {
+        Timer.Elapsed += (s, e) => Update();
+    }
 
     private void Log(string message)
     {
@@ -41,17 +32,35 @@ public class StateMonitor
         LineLogged?.Invoke(this, line);
     }
 
-    public void RunForever()
+    private void LogStart()
     {
         Log($"ActiveWindowLogger - Started");
         Log($"ActiveWindowLogger - Log Folder: {LogFolderPath}");
         Log($"ActiveWindowLogger - Check Interval Seconds: {CheckInterval.TotalSeconds}");
         Log($"ActiveWindowLogger - Inactivity Threshold Seconds: {InactiveThreshold.TotalSeconds}");
+    }
+
+    public void StartBlocking()
+    {
+        LogStart();
         while (true)
         {
             Update();
             Thread.Sleep(CheckInterval);
         }
+    }
+
+    public void Start()
+    {
+        LogStart();
+        Update();
+        Timer.Interval = CheckInterval.TotalMilliseconds;
+        Timer.Start();
+    }
+
+    public void Stop()
+    {
+        Timer.Stop();
     }
 
     private void Update()
