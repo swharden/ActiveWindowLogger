@@ -6,13 +6,16 @@
 
 ## Design Goals
 
-* As simple as possible
+* Single file EXE
 * No installation required
-* Log data in daily CSV files
-* Show icon in system tray
+* Log data as daily CSV files
+* Application is a system tray icon
 * Automatically start with Windows
 * Totally separate analysis application
-* Do not monitor key presses to maximize security
+* Never monitor key presses to maximize security
+
+## Download
+* Download: [Active Window Logger](https://github.com/swharden/ActiveWindowLogger/releases/latest) (Latest Release)
 
 ## Similar Projects
 * [ActivityWatch](https://activitywatch.net/) - A similar project with extensive features, but has a database structure that is complex and keeps getting silenced by my antivirus system.
