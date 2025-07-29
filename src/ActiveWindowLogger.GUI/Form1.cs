@@ -1,10 +1,15 @@
-using System.Reflection;
+using Microsoft.Win32;
+using System.Diagnostics;
 
 namespace ActiveWindowLogger.GUI;
 
 public partial class Form1 : Form
 {
-    readonly Logger Monitor = new() { CheckInterval = TimeSpan.FromSeconds(1) };
+    readonly Logger Monitor = new()
+    {
+        LogFolderPath = Path.GetDirectoryName(Application.ExecutablePath)!,
+        CheckInterval = TimeSpan.FromSeconds(1),
+    };
 
     readonly NotifyIcon NotifyIcon;
 
@@ -33,8 +38,16 @@ public partial class Form1 : Form
 
     private NotifyIcon GetNotifyIcon()
     {
+        ToolStripMenuItem startupMenuItem = new("Start with Windows")
+        {
+            CheckOnClick = true,
+            Checked = IsStartupEnabled(),
+        };
+        startupMenuItem.CheckedChanged += (s, e) => SetStartup(startupMenuItem.Checked);
+
         ContextMenuStrip menu = new();
         menu.Items.Add("Open", null, (s, e) => ShowWindow());
+        menu.Items.Add(startupMenuItem);
         menu.Items.Add("Exit", null, (s, e) => Application.Exit());
 
         NotifyIcon notify = new()
@@ -52,6 +65,32 @@ public partial class Form1 : Form
         };
 
         return notify;
+    }
+
+    public const string APP_NAME = "ActiveWindowLogger";
+    private static RegistryKey GetRegistryKey(bool writable)
+    {
+        return Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", writable) 
+            ?? throw new NullReferenceException("access to startup registry path failed");
+    }
+
+    public static bool IsStartupEnabled()
+    {
+        using RegistryKey key = GetRegistryKey(false);
+        string? currentValue = key?.GetValue(APP_NAME) as string;
+        bool isEnabled = currentValue is not null && currentValue.Contains(Application.ExecutablePath);
+        Debug.WriteLine($"Current registry startup enabled: {isEnabled}");
+        return isEnabled;
+    }
+
+    public static void SetStartup(bool enable)
+    {
+        using RegistryKey key = GetRegistryKey(true);
+        Debug.WriteLine($"Setting registry startup: {enable}");
+        if (enable)
+            key.SetValue(APP_NAME, $"\"{Application.ExecutablePath}\"");
+        else
+            key.DeleteValue(APP_NAME, false);
     }
 
     private void ShowWindow()
