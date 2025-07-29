@@ -11,13 +11,13 @@ public class Logger
     public EventHandler<string>? LineLogged { get; set; }
     readonly System.Timers.Timer Timer = new();
 
-    public string LogFolderPath { get; set; } = Path.GetFullPath("./");
+    public string LogFolder { get; set; } = Path.GetFullPath("./");
     string WindowLast = string.Empty;
     string MouseLast = string.Empty;
     bool IsActive = true;
     readonly Stopwatch LastActivityTimer = Stopwatch.StartNew();
 
-    private string LogFilePath => Path.Join(LogFolderPath,
+    private string LogFilePath => Path.Join(LogFolder,
         $"{DateTime.Now.Year}-{DateTime.Now.Month:00}-{DateTime.Now.Day:00}.txt");
 
     public Logger()
@@ -37,7 +37,7 @@ public class Logger
     private void LogStart()
     {
         Log($"ActiveWindowLogger - Started");
-        Log($"ActiveWindowLogger - Log Folder: {LogFolderPath}");
+        Log($"ActiveWindowLogger - Log Folder: {LogFolder}");
         Log($"ActiveWindowLogger - Check Interval Seconds: {CheckInterval.TotalSeconds}");
         Log($"ActiveWindowLogger - Inactivity Threshold Seconds: {InactiveThreshold.TotalSeconds}");
     }

@@ -1,53 +1,56 @@
 using Microsoft.Win32;
 using System.Diagnostics;
 
-namespace ActiveWindowLogger.GUI;
+namespace ActiveWindowLogger;
 
 public partial class Form1 : Form
 {
-    readonly Logger Monitor = new()
-    {
-        LogFolderPath = Path.GetDirectoryName(Application.ExecutablePath)!,
-        CheckInterval = TimeSpan.FromSeconds(1),
-    };
+    readonly Logger Monitor = new();
 
     readonly NotifyIcon NotifyIcon;
+
+    readonly string LogFolder = Path.Join(Path.GetDirectoryName(Application.ExecutablePath), "logs");
 
     public Form1()
     {
         InitializeComponent();
+
         Icon = Properties.Resources.icon;
         NotifyIcon = GetNotifyIcon();
+        checkStartWithWindows.Checked = IsStartupEnabled();
 
-        rtbLogs.Clear();
-        lblFolder.Text = Monitor.LogFolderPath;
-
-        btnStart.Click += (s, e) => StartLogging();
-        btnStop.Click += (s, e) => StopLogging();
-        btnSetFolder.Click += (s, e) => SetFolder();
-        btnLaunchFolder.Click += (s, e) => LaunchFolder();
+        btnViewLogs.Click += (s, e) => LaunchFolder();
+        checkStartWithWindows.CheckedChanged += (s, e) => SetStartup(checkStartWithWindows.Checked);
 
         Load += (s, e) =>
         {
-            Monitor.LineLogged += (s, e) => rtbLogs.Invoke(new Action(() => LogLine(e)));
-            StartLogging();
+            if (!Directory.Exists(LogFolder))
+                Directory.CreateDirectory(LogFolder);
+            Monitor.LogFolder = LogFolder;
+            Monitor.CheckInterval = TimeSpan.FromSeconds(1); // TODO: back this off if needed
+            Monitor.LineLogged += (s, e) => Invoke(new Action(() => LogLine(e)));
+            Monitor.Start();
         };
-        HideWindow();
-    }
 
+        FormClosing += (s, e) =>
+        {
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                e.Cancel = true;
+                Hide(); // don't exit, just go to taskbar
+            }
+        };
+
+        if (!Debugger.IsAttached)
+        {
+            HideWindow();
+        }
+    }
 
     private NotifyIcon GetNotifyIcon()
     {
-        ToolStripMenuItem startupMenuItem = new("Start with Windows")
-        {
-            CheckOnClick = true,
-            Checked = IsStartupEnabled(),
-        };
-        startupMenuItem.CheckedChanged += (s, e) => SetStartup(startupMenuItem.Checked);
-
         ContextMenuStrip menu = new();
         menu.Items.Add("Open", null, (s, e) => ShowWindow());
-        menu.Items.Add(startupMenuItem);
         menu.Items.Add("Exit", null, (s, e) => Application.Exit());
 
         NotifyIcon notify = new()
@@ -70,7 +73,7 @@ public partial class Form1 : Form
     public const string APP_NAME = "ActiveWindowLogger";
     private static RegistryKey GetRegistryKey(bool writable)
     {
-        return Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", writable) 
+        return Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", writable)
             ?? throw new NullReferenceException("access to startup registry path failed");
     }
 
@@ -108,39 +111,27 @@ public partial class Form1 : Form
         Hide();
     }
 
-    private void SetFolder()
-    {
-        FolderBrowserDialog dialog = new();
-        if (dialog.ShowDialog() == DialogResult.OK)
-        {
-            Monitor.LogFolderPath = dialog.SelectedPath;
-            lblFolder.Text = Monitor.LogFolderPath;
-        }
-    }
-
     private void LaunchFolder()
     {
-        System.Diagnostics.Process.Start("explorer.exe", Monitor.LogFolderPath);
+        Process.Start("explorer.exe", Monitor.LogFolder);
     }
 
-    private void LogLine(string line)
+    private void LogLine(string line, int maxLines = 50)
     {
-        rtbLogs.AppendText(line);
-        rtbLogs.SelectionStart = rtbLogs.TextLength;
-        rtbLogs.ScrollToCaret();
-    }
+        Label lbl = new()
+        {
+            Text = line.Trim(),
+            AutoSize = false,
+            Height = 20,
+            Dock = DockStyle.Top,
+            TextAlign = ContentAlignment.TopLeft,
+            AutoEllipsis = true,
+        };
 
-    private void StartLogging()
-    {
-        btnStart.Enabled = false;
-        btnStop.Enabled = true;
-        Monitor.Start();
-    }
-
-    private void StopLogging()
-    {
-        btnStart.Enabled = true;
-        btnStop.Enabled = false;
-        Monitor.Stop();
+        panel1.Controls.Add(lbl);
+        while (panel1.Controls.Count > maxLines)
+        {
+            panel1.Controls.RemoveAt(0);
+        }
     }
 }

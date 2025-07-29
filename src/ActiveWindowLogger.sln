@@ -5,8 +5,6 @@ VisualStudioVersion = 17.14.36121.58 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ActiveWindowLogger", "ActiveWindowLogger\ActiveWindowLogger.csproj", "{590B643A-1174-4299-4362-0AC01FF021CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ActiveWindowLogger.GUI", "ActiveWindowLogger.GUI\ActiveWindowLogger.GUI.csproj", "{104DBF2D-126C-3319-785A-47E656360387}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,15 +15,11 @@ Global
 		{590B643A-1174-4299-4362-0AC01FF021CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{590B643A-1174-4299-4362-0AC01FF021CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{590B643A-1174-4299-4362-0AC01FF021CF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{104DBF2D-126C-3319-785A-47E656360387}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{104DBF2D-126C-3319-785A-47E656360387}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{104DBF2D-126C-3319-785A-47E656360387}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{104DBF2D-126C-3319-785A-47E656360387}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {101BF3C9-44B1-4659-8D15-D6ED08A7FD21}
+		SolutionGuid = {2F87F515-1698-4788-B38F-5D55E232BADB}
 	EndGlobalSection
 EndGlobal
