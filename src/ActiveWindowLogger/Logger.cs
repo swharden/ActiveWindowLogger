@@ -6,6 +6,7 @@ namespace ActiveWindowLogger;
 
 public class Logger
 {
+    public static string Version { get; } = "1.0";
     public TimeSpan InactiveThreshold { get; set; } = TimeSpan.FromMinutes(5);
     public TimeSpan CheckInterval { get; set; } = TimeSpan.FromSeconds(5);
     public EventHandler<string>? LineLogged { get; set; }

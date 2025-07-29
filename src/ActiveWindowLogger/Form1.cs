@@ -15,6 +15,7 @@ public partial class Form1 : Form
     {
         InitializeComponent();
 
+        Text = $"Active Window Logger {Logger.Version}";
         Icon = Properties.Resources.icon;
         NotifyIcon = GetNotifyIcon();
         checkStartWithWindows.Checked = IsStartupEnabled();
