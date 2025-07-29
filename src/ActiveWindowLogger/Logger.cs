@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ActiveWindowLogger;
 
-public class StateMonitor
+public class Logger
 {
     public TimeSpan InactiveThreshold { get; set; } = TimeSpan.FromMinutes(5);
     public TimeSpan CheckInterval { get; set; } = TimeSpan.FromSeconds(5);
@@ -20,13 +20,15 @@ public class StateMonitor
     private string LogFilePath => Path.Join(LogFolderPath,
         $"{DateTime.Now.Year}-{DateTime.Now.Month:00}-{DateTime.Now.Day:00}.txt");
 
-    public StateMonitor()
+    public Logger()
     {
         Timer.Elapsed += (s, e) => Update();
     }
 
     private void Log(string message)
     {
+        if (string.IsNullOrWhiteSpace(message))
+            return;
         string line = $"{DateTime.Now}, {message}\n";
         File.AppendAllText(LogFilePath, line);
         LineLogged?.Invoke(this, line);

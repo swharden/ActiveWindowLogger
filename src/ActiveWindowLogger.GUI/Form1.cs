@@ -1,12 +1,19 @@
+using System.Reflection;
+
 namespace ActiveWindowLogger.GUI;
 
 public partial class Form1 : Form
 {
-    readonly StateMonitor Monitor = new() { CheckInterval = TimeSpan.FromSeconds(1) };
+    readonly Logger Monitor = new() { CheckInterval = TimeSpan.FromSeconds(1) };
+
+    readonly NotifyIcon NotifyIcon;
 
     public Form1()
     {
         InitializeComponent();
+        Icon = Properties.Resources.icon;
+        NotifyIcon = GetNotifyIcon();
+
         rtbLogs.Clear();
         lblFolder.Text = Monitor.LogFolderPath;
 
@@ -20,6 +27,46 @@ public partial class Form1 : Form
             Monitor.LineLogged += (s, e) => rtbLogs.Invoke(new Action(() => LogLine(e)));
             StartLogging();
         };
+        HideWindow();
+    }
+
+
+    private NotifyIcon GetNotifyIcon()
+    {
+        ContextMenuStrip menu = new();
+        menu.Items.Add("Open", null, (s, e) => ShowWindow());
+        menu.Items.Add("Exit", null, (s, e) => Application.Exit());
+
+        NotifyIcon notify = new()
+        {
+            Icon = Properties.Resources.icon,
+            Text = "Active Window Logger",
+            Visible = true,
+            ContextMenuStrip = menu,
+        };
+
+        notify.MouseClick += (s, e) =>
+        {
+            if (e.Button == MouseButtons.Left)
+                ShowWindow();
+        };
+
+        return notify;
+    }
+
+    private void ShowWindow()
+    {
+        Show();
+        WindowState = FormWindowState.Normal;
+        ShowInTaskbar = true;
+        BringToFront();
+    }
+
+    private void HideWindow()
+    {
+        WindowState = FormWindowState.Minimized;
+        ShowInTaskbar = false;
+        Hide();
     }
 
     private void SetFolder()
