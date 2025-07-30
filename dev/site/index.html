@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Active Window Logger - A simple way to track computer usage</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+
+    <link rel="icon" type="image/x-icon" href="/software/ActiveWindowLogger/icon.ico">
+    <style>
+        a {
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 800px;
+        }
+
+        header {
+            position: relative;
+            background:
+                repeating-linear-gradient(-45deg,
+                    rgba(0, 0, 0, 0),
+                    rgba(0, 0, 0, 0.07) 2px,
+                    rgba(0, 0, 0, 0) 4px,
+                    transparent 2px,
+                    transparent 6px),
+                #0049a2;
+            color: white;
+            padding: 4rem 2rem;
+            overflow: hidden;
+        }
+
+        .text-shadow {
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .download-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5em;
+            background-color: #0049a2;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .download-button:hover {
+            background-color: #1368d1;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+            text-decoration: none;
+        }
+
+        .download-icon {
+            width: 1.25em;
+            height: 1.25em;
+        }
+
+        img {
+            max-width: 100%;
+        }
+    </style>
+</head>
+
+<body class="p-0 m-0">
+    <header class="text-light py-5">
+        <div class="container text-shadow">
+            <h1 class="display-5 fw-semibold">Active Window Logger</h1>
+            <div class="fs-4 fw-light">A system tray app for tracking computer usage</div>
+        </div>
+    </header>
+
+    <main class="container">
+        <p class="mt-5">
+            <strong class="fw-semibold">
+                Active Window Logger is a Windows Application that lives in the system tray
+                and monitors computer activity based on active window name.
+            </strong>
+            Unlike similar projects, this app aims to be as simple as possible to
+            facilitate customization and minimize risk it will be flagged as malware.
+            It inspects window titles and tracks mouse movement to evaluate activity,
+            but key presses are never tracked.
+        </p>
+
+        <p class="text-center mt-5 mb-3 fs-4">
+            <a href="ActiveWindowLogger.exe" class="download-button px-3 py-2 fw-semibold">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor"
+                    class="bi bi-download" viewBox="0 0 16 16">
+                    <path
+                        d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5" />
+                    <path
+                        d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z" />
+                </svg>
+                ActiveWindowLogger.exe
+            </a>
+        </p>
+
+        <div class="text-center" style="opacity: .5;">
+            <a href="https://github.com/swharden/ActiveWindowLogger">Source code on GitHub</a>
+        </div>
+
+        <hr class="my-5" />
+        <div class="text-center">
+            <img src="tray.png" />
+        </div>
+
+        <div class="text-center">
+            <img src="screenshot.png" />
+        </div>
+
+        <div class="text-center">
+            <img src="output.png" />
+        </div>
+    </main>
+
+    <footer class="text-muted bg-light border-top" style="margin-top: 7rem;">
+        <div class="container py-4">
+            <div class="my-3">
+                Software by
+                <a href="https://swharden.com/about">
+                    Scott W Harden
+                </a>
+                <a href="https://github.com/swharden">
+                    @swharden
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
