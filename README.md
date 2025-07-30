@@ -2,7 +2,7 @@
 
 **Active Window Logger is a Windows Application that lives in the system tray and monitors computer activity based on active window name.** Many similar projects exist, but this one is open-source and aims to be as minimal as possible to facilitate customization. It inspects window titles and tracks mouse movement to evaluate activity, but key presses are never tracked to maximize security and prevent the app from getting falsely flagged as malware. This application is a single file and requires no installation.
 
-**Download:** [ActiveWindowLogger.exe](https://github.com/swharden/ActiveWindowLogger/releases/latest) (Latest Release)
+**Download:** https://swharden.com/software/ActiveWindowLogger
 
 ![](dev/screenshot.png)
 
