@@ -15,6 +15,11 @@ public partial class Form1 : Form
     {
         InitializeComponent();
 
+        int checkInterval = Debugger.IsAttached ? 1 : 10;
+        groupBox1.Text = $"Active Window (checked every {checkInterval} seconds)";
+
+        int inactiveThresholdSeconds = Debugger.IsAttached ? 3 : 10 * 5;
+
         Text = $"Active Window Logger {Logger.Version}";
         Icon = Properties.Resources.icon;
         NotifyIcon = GetNotifyIcon();
@@ -28,7 +33,9 @@ public partial class Form1 : Form
             if (!Directory.Exists(LogFolder))
                 Directory.CreateDirectory(LogFolder);
             Monitor.LogFolder = LogFolder;
-            Monitor.CheckInterval = TimeSpan.FromSeconds(1); // TODO: back this off if needed
+            Monitor.CheckInterval = TimeSpan.FromSeconds(checkInterval);
+            Monitor.InactiveThreshold = TimeSpan.FromSeconds(inactiveThresholdSeconds);
+            Monitor.ActiveWindowChecked += (s, e) => Invoke(new Action(() => label1.Text = e.GetCsvLine()));
             Monitor.LineLogged += (s, e) => Invoke(new Action(() => LogLine(e)));
             Monitor.Start();
         };

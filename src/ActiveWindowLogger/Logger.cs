@@ -1,21 +1,19 @@
 ﻿using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Text;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace ActiveWindowLogger;
 
 public class Logger
 {
-    public static string Version { get; } = "1.0";
+    public static string Version { get; } = "1.1";
     public TimeSpan InactiveThreshold { get; set; } = TimeSpan.FromMinutes(5);
     public TimeSpan CheckInterval { get; set; } = TimeSpan.FromSeconds(5);
     public EventHandler<string>? LineLogged { get; set; }
+    public EventHandler<ActiveWindowRecord>? ActiveWindowChecked { get; set; }
     readonly System.Timers.Timer Timer = new();
 
     public string LogFolder { get; set; } = Path.GetFullPath("./");
-    string WindowLast = string.Empty;
-    string MouseLast = string.Empty;
-    bool IsActive = true;
+    ActiveWindowRecord LastChangedState;
     readonly Stopwatch LastActivityTimer = Stopwatch.StartNew();
 
     private string LogFilePath => Path.Join(LogFolder,
@@ -26,31 +24,32 @@ public class Logger
         Timer.Elapsed += (s, e) => Update();
     }
 
-    private void Log(string message)
+    private void LogMessage(string key, string value)
     {
-        if (string.IsNullOrWhiteSpace(message))
-            return;
-        string line = $"{DateTime.Now}, {message}\n";
+        string timestamp = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss");
+        string line = $"{timestamp}, {key}, {value}\n";
         File.AppendAllText(LogFilePath, line);
         LineLogged?.Invoke(this, line);
     }
 
-    private void LogStart()
+    private void LogWindowActivity(ActiveWindowRecord window)
     {
-        Log($"ActiveWindowLogger - Started");
-        Log($"ActiveWindowLogger - Log Folder: {LogFolder}");
-        Log($"ActiveWindowLogger - Check Interval Seconds: {CheckInterval.TotalSeconds}");
-        Log($"ActiveWindowLogger - Inactivity Threshold Seconds: {InactiveThreshold.TotalSeconds}");
+        LogMessage(window.Path, window.Title);
     }
 
-    public void StartBlocking()
+    private void LogWentInactive()
     {
-        LogStart();
-        while (true)
-        {
-            Update();
-            Thread.Sleep(CheckInterval);
-        }
+        string key = "ActiveWindowLogger";
+        LogMessage(key, $"Inactive for: {InactiveThreshold.Seconds}");
+    }
+
+    private void LogStart()
+    {
+        string key = "ActiveWindowLogger";
+        LogMessage(key, $"Started");
+        LogMessage(key, $"Log Folder: {LogFolder}");
+        LogMessage(key, $"Check Interval Seconds: {CheckInterval.TotalSeconds}");
+        LogMessage(key, $"Inactivity Threshold Seconds: {InactiveThreshold.TotalSeconds}");
     }
 
     public void Start()
@@ -61,75 +60,32 @@ public class Logger
         Timer.Start();
     }
 
-    public void Stop()
-    {
-        Timer.Stop();
-    }
-
+    bool IsInactive = false;
     private void Update()
     {
-        bool isNewActivity = false;
+        ActiveWindowRecord currentState = ActiveWindowRecord.GetCurrentState();
+        ActiveWindowChecked?.Invoke(this, currentState);
 
-        string windowTitle = GetWindowTitle();
-        if (windowTitle != WindowLast)
-        {
-            WindowLast = windowTitle;
-            Log(windowTitle);
-            isNewActivity = true;
-        }
+        bool nothingChanged = currentState.Title == LastChangedState.Title &&
+            currentState.MouseX == LastChangedState.MouseX &&
+            currentState.MouseY == LastChangedState.MouseY;
 
-        string mousePosition = GetMousePosition();
-        if (mousePosition != MouseLast)
+        if (nothingChanged)
         {
-            MouseLast = mousePosition;
-            isNewActivity = true;
-        }
-
-        if (isNewActivity)
-        {
-            if (IsActive == false)
+            if (IsInactive == false && LastChangedState.Age >= InactiveThreshold)
             {
-                Log(windowTitle);
+                IsInactive = true;
+                LogWentInactive();
             }
-            IsActive = true;
-            LastActivityTimer.Restart();
+            return;
         }
-        else
+
+        if (currentState.Title != LastChangedState.Title || IsInactive)
         {
-            if (IsActive && LastActivityTimer.Elapsed >= InactiveThreshold)
-            {
-                IsActive = false;
-                Log($"ActiveWindowLogger - Inactive");
-            }
+            LogWindowActivity(currentState);
         }
-    }
 
-    [DllImport("user32.dll")]
-    private static extern bool GetCursorPos(out Point lpPoint);
-
-    [DllImport("user32.dll")]
-    private static extern IntPtr GetForegroundWindow();
-
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
-
-    private struct Point { public int X; public int Y; }
-    private static string GetMousePosition()
-    {
-        GetCursorPos(out Point point);
-        return $"{point.X},{point.Y}";
-    }
-
-    private static string GetWindowTitle()
-    {
-        const int nChars = 256;
-        StringBuilder buffer = new(nChars);
-        IntPtr handle = GetForegroundWindow();
-
-        string title = GetWindowText(handle, buffer, nChars) > 0
-            ? buffer.ToString()
-            : string.Empty;
-
-        return title;
+        IsInactive = false;
+        LastChangedState = currentState;
     }
 }
