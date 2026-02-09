@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace ActiveWindowLogger;
 
@@ -11,6 +10,7 @@ public class Logger
     public EventHandler<string>? LineLogged { get; set; }
     public EventHandler<ActiveWindowRecord>? ActiveWindowChecked { get; set; }
     readonly System.Timers.Timer Timer = new();
+    readonly CloudTimeTracker CloudTimeTracker = new();
 
     public string LogFolder { get; set; } = Path.GetFullPath("./");
     ActiveWindowRecord LastChangedState;
@@ -83,6 +83,15 @@ public class Logger
         if (currentState.Title != LastChangedState.Title || IsInactive)
         {
             LogWindowActivity(currentState);
+        }
+
+        if (!nothingChanged)
+        {
+            // Fire and forget. Don't track at all. Let it fail.
+            Task.Run(async () =>
+            {
+                await CloudTimeTracker.LogActivity();
+            });
         }
 
         IsInactive = false;
